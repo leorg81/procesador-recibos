@@ -18,3 +18,9 @@ vaadin-side-nav-item vaadin-icon {
 [slot="drawer"]:is(header, footer):is(:empty) {
   display: none;
 }
+
+.llamando-row {
+    background-color: #ffeb3b !important; /* amarillo suave */
+    font-weight: bold;
+    font-size: 24px;
+}

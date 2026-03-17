@@ -1,0 +1,61 @@
+server.port=${PORT:8080}
+logging.level.org.atmosphere = warn
+spring.mustache.check-template-location = false
+
+# Launch the default browser when starting the application in development mode
+# MariaDB configuration.
+spring.datasource.url = jdbc:mariadb://172.22.0.1:3306/procrecibosdb
+spring.datasource.username = vaadinstart
+spring.datasource.password = vaadinstart
+spring.jpa.hibernate.ddl-auto = update
+# To improve the performance during development.
+# For more information https://vaadin.com/docs/latest/integrations/spring/configuration#special-configuration-parameters
+vaadin.allowed-packages = com.vaadin,org.vaadin,com.flowingcode,org.vaadin.example
+spring.jpa.defer-datasource-initialization = never
+spring.sql.init.mode = never
+#server.servlet.session.timeout=400m
+vaadin.push.heartbeat-interval=30
+vaadin.push.connection.timeout=30
+
+spring.mail.host=mail.rionegro.gub.uy
+spring.mail.port=587
+spring.mail.username=tramitesdigitales@rionegro.gub.uy
+spring.mail.password=BlackRiver2025!
+spring.mail.protocol=smtp
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+spring.mail.properties.mail.smtp.starttls.required=true
+spring.mail.properties.mail.smtp.ssl.trust=mail.rionegro.gub.uy
+mail.imap.host=mail.rionegro.gub.uy
+mail.imap.port=993
+mail.imap.user=tramitesdigitales@rionegro.gub.uy
+mail.imap.password=BlackRiver2025!
+mail.imap.folder=INBOX
+
+
+spring.servlet.multipart.max-file-size=50MB
+spring.servlet.multipart.max-request-size=50MB
+
+# Para Vaadin (si usas Spring Boot 2.x)
+vaadin.servlet.url-mapping=/vaadin/*
+
+HACIENDA INGRESOS TRIBUTOS VARIOS ESPERA IMPO - PARA COBRO DE TASA
+LLEGADA POR SISTEMA : 22/08/2025 14:01:41
+
+# Estos son los tipos que detecta el sistema automáticamente
+app.tipos.recibo.validos=MENSUAL,AGUINALDO,COMPLEMENTARIA,VACACIONAL,EGRESO
+
+# Mapeo: Tipo BD Tipo para correo (asunto)
+# Esto define cómo los usuarios deben solicitar los recibos por email
+app.tipos.recibo.mapeo.mensual=sueldo
+app.tipos.recibo.mapeo.aguinaldo=aguinaldo
+app.tipos.recibo.mapeo.complementaria=complementaria
+app.tipos.recibo.mapeo.vacacional=vacacional
+app.tipos.recibo.mapeo.egreso=egreso
+
+# Configuración adicional (opcional)
+app.tipos.recibo.mensual.nombre=Sueldo Mensual
+app.tipos.recibo.aguinaldo.nombre=Aguinaldo
+app.tipos.recibo.complementaria.nombre=Liquidación Complementaria
+app.tipos.recibo.vacacional.nombre=Salario Vacacional
+app.tipos.recibo.egreso.nombre=Liquidación de Egreso

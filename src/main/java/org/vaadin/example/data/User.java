@@ -1,14 +1,9 @@
 package org.vaadin.example.data;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Lob;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+
 import java.util.Set;
 
 @Entity
@@ -22,9 +17,14 @@ public class User extends AbstractEntity {
     @Enumerated(EnumType.STRING)
     @ElementCollection(fetch = FetchType.EAGER)
     private Set<Role> roles;
+
+    @Email
+    private String correo;
+
     @Lob
     @Column(length = 1000000)
     private byte[] profilePicture;
+
 
     public String getUsername() {
         return username;
@@ -57,4 +57,12 @@ public class User extends AbstractEntity {
         this.profilePicture = profilePicture;
     }
 
+
+    public String getCorreo() {
+        return correo;
+    }
+
+    public void setCorreo(String correo) {
+        this.correo = correo;
+    }
 }
