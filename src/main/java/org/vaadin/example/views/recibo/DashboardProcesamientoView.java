@@ -241,11 +241,13 @@ public class DashboardProcesamientoView extends VerticalLayout {
                 .setAutoWidth(true);
 
         gridDetalle.addColumn(r -> {
-                    String nombres = r.getNombres() != null ? r.getNombres() : "";
-                    String apellidos = r.getApellidos() != null ? r.getApellidos() : "";
-                    return (nombres + " " + apellidos).trim();
-                }).setHeader("Nombre")
-                .setAutoWidth(true);
+            String pn = r.getPrimerNombre() != null ? r.getPrimerNombre() : "";
+            String pa = r.getPrimerApellido() != null ? r.getPrimerApellido() : "";
+            if (pn.isEmpty() && pa.isEmpty()) return "";
+            if (pn.isEmpty()) return pa;
+            if (pa.isEmpty()) return pn;
+            return pn + " " + pa;
+        }).setHeader("Nombre").setAutoWidth(true);
 
         gridDetalle.addColumn(r -> formatearMesAnio(r.getMesAnio()))
                 .setHeader("Mes/Año")
@@ -310,7 +312,7 @@ public class DashboardProcesamientoView extends VerticalLayout {
     private Double calcularConfianzaEnTiempoReal(ReciboProcesado recibo) {
         double confianza = 0.0;
 
-        // 1. CI válido (40 puntos)
+        // 1. CI válido (50 puntos)
         if (recibo.getCi() != null && !recibo.getCi().equals("desconocido")) {
             if (recibo.getCi().matches("\\d{7,8}-?\\d?")) {
                 confianza += 0.4;
@@ -319,11 +321,11 @@ public class DashboardProcesamientoView extends VerticalLayout {
             }
         }
 
-        // 2. Nombres completos (30 puntos)
-        if (recibo.getNombres() != null && !recibo.getNombres().isEmpty() &&
-                recibo.getApellidos() != null && !recibo.getApellidos().isEmpty()) {
+        if (recibo.getPrimerNombre() != null && !recibo.getPrimerNombre().isEmpty() &&
+                recibo.getPrimerApellido() != null && !recibo.getPrimerApellido().isEmpty()) {
             confianza += 0.3;
         }
+
 
         // 3. Datos básicos presentes (30 puntos)
         if (recibo.getMesAnio() != null && recibo.getMesAnio().length() == 6) {
@@ -518,12 +520,18 @@ public class DashboardProcesamientoView extends VerticalLayout {
                                 r.getCi().toLowerCase().contains(busquedaTexto);
 
                         boolean coincideNombre = false;
-                        if (r.getNombres() != null && r.getApellidos() != null) {
-                            String nombreCompleto = (r.getNombres() + " " + r.getApellidos()).toLowerCase();
+                        if (r.getPrimerNombre() != null && r.getPrimerApellido() != null) {
+                            String nombreCompleto = (r.getPrimerNombre() + " " + r.getPrimerApellido()).toLowerCase();
                             coincideNombre = nombreCompleto.contains(busquedaTexto);
                         }
 
-                        return coincideCI || coincideNombre;
+                        // Nueva búsqueda en primer nombre y primer apellido
+                        boolean coincidePrimerNombre = r.getPrimerNombre() != null &&
+                                r.getPrimerNombre().toLowerCase().contains(busquedaTexto);
+                        boolean coincidePrimerApellido = r.getPrimerApellido() != null &&
+                                r.getPrimerApellido().toLowerCase().contains(busquedaTexto);
+
+                        return coincideCI || coincideNombre || coincidePrimerNombre || coincidePrimerApellido;
                     })
                     .collect(Collectors.toList());
             gridDetalle.setItems(filtrados);

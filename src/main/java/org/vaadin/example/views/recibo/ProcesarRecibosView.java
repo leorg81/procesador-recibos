@@ -24,10 +24,9 @@ import org.vaadin.example.data.ReciboProcesadoRepository;
 import org.vaadin.example.data.TipoRecibo;
 import org.vaadin.example.services.LocalidadService;
 import org.vaadin.example.services.ProcesadorPdfService;
-import org.vaadin.example.services.TipoReciboService;
 import org.vaadin.example.views.MainLayout;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
-
+import org.vaadin.example.services.TipoReciboService;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +34,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -80,19 +78,13 @@ public class ProcesarRecibosView extends VerticalLayout {
         setSpacing(true);
         setSizeFull();
 
-        // Configurar componentes
         configurarFormulario();
         configurarGrids();
-
-        // Crear layout en 3 secciones verticales
         crearLayoutTresSecciones();
-
-        // Cargar datos iniciales
         cargarProcesos();
     }
 
     private void configurarFormulario() {
-        // Configurar localidades
         comboLocalidad.setItems(localidadService.listarTodas());
         comboLocalidad.setItemLabelGenerator(localidad ->
                 localidad.getNombre() + " (" + localidad.getCodigo() + ")"
@@ -100,13 +92,11 @@ public class ProcesarRecibosView extends VerticalLayout {
         comboLocalidad.setPlaceholder("Seleccione localidad");
         comboLocalidad.setWidth("100%");
 
-        // Configurar tipos de recibo
         comboTipoRecibo.setItems(tipoReciboService.listarTodos());
         comboTipoRecibo.setItemLabelGenerator(TipoRecibo::getNombre);
         comboTipoRecibo.setPlaceholder("Seleccione tipo de recibo");
         comboTipoRecibo.setWidth("100%");
 
-        // Configurar meses
         comboMes.setItems(
                 "01 - Enero", "02 - Febrero", "03 - Marzo",
                 "04 - Abril", "05 - Mayo", "06 - Junio",
@@ -116,7 +106,6 @@ public class ProcesarRecibosView extends VerticalLayout {
         comboMes.setPlaceholder("Seleccione mes");
         comboMes.setWidth("100%");
 
-        // Configurar años (últimos 5 años y próximo)
         int anioActual = LocalDateTime.now().getYear();
         String[] anios = new String[6];
         for (int i = 0; i < 6; i++) {
@@ -127,16 +116,13 @@ public class ProcesarRecibosView extends VerticalLayout {
         comboAnio.setValue(String.valueOf(anioActual));
         comboAnio.setWidth("100%");
 
-        // Configurar upload
         configurarUpload();
 
-        // Configurar botón procesar
         btnProcesar.getElement().setAttribute("theme", "primary success");
         btnProcesar.setWidthFull();
         btnProcesar.addClickListener(e -> procesarArchivo());
         btnProcesar.setEnabled(false);
 
-        // Habilitar botón solo cuando todos los campos estén completos
         Runnable validarCampos = () -> {
             boolean camposCompletos = !comboLocalidad.isEmpty() &&
                     !comboTipoRecibo.isEmpty() &&
@@ -154,30 +140,24 @@ public class ProcesarRecibosView extends VerticalLayout {
 
     private void configurarUpload() {
         upload.setAcceptedFileTypes(".pdf", "application/pdf");
-        upload.setMaxFileSize(100 * 1024 * 1024); // 100MB
+        upload.setMaxFileSize(100 * 1024 * 1024);
         upload.setDropLabel(new Span("Arrastra el archivo PDF aquí"));
         upload.setUploadButton(new Button("Seleccionar archivo"));
         upload.setWidthFull();
 
-        // Limpiar el label de upload
         upload.getElement().executeJs("""
         this.shadowRoot.querySelector('vaadin-upload-file-list').style.display = 'none';
     """);
 
         upload.addStartedListener(event -> {
-            // Resetear estado anterior
             archivoSubido = null;
             btnProcesar.setEnabled(false);
         });
 
         upload.addSucceededListener(event -> {
             archivoSubido = event.getFileName();
-
-            // Mostrar nombre del archivo
             Notification.show("✅ Archivo listo: " + archivoSubido,
                     2000, Notification.Position.BOTTOM_END);
-
-            // Validar campos
             btnProcesar.setEnabled(!comboLocalidad.isEmpty() &&
                     !comboTipoRecibo.isEmpty() &&
                     !comboMes.isEmpty() &&
@@ -201,7 +181,6 @@ public class ProcesarRecibosView extends VerticalLayout {
 
     private void resetearUpload() {
         archivoSubido = null;
-        // Resetear el componente Upload
         upload.getElement().executeJs("""
         this.files = [];
         this.clearFiles();
@@ -212,24 +191,20 @@ public class ProcesarRecibosView extends VerticalLayout {
     }
 
     private void configurarGrids() {
-        // Configurar grid de procesos
+        // Grid de procesos
         gridProcesos.addColumn(ProcesoDTO::getNombreProceso)
                 .setHeader("Proceso")
-                .setAutoWidth(true)
-                .setFlexGrow(0);
+                .setAutoWidth(true);
 
         gridProcesos.addColumn(ProcesoDTO::getCantidadRecibos)
                 .setHeader("Recibos")
-                .setAutoWidth(true)
-                .setFlexGrow(0);
+                .setAutoWidth(true);
 
         gridProcesos.addColumn(ProcesoDTO::getFechaProcesamiento)
                 .setHeader("Procesado")
                 .setAutoWidth(true)
-                .setFlexGrow(0)
                 .setSortable(true);
 
-        // Columna de acciones para procesos
         gridProcesos.addComponentColumn(proceso -> {
             HorizontalLayout acciones = new HorizontalLayout();
             acciones.setSpacing(true);
@@ -246,12 +221,11 @@ public class ProcesarRecibosView extends VerticalLayout {
 
             acciones.add(verDetalles, eliminar);
             return acciones;
-        }).setHeader("Acciones").setAutoWidth(true).setFlexGrow(0);
+        }).setHeader("Acciones").setAutoWidth(true);
 
         gridProcesos.setSizeFull();
         gridProcesos.setSelectionMode(Grid.SelectionMode.SINGLE);
 
-        // Cuando se selecciona un proceso, cargar sus detalles
         gridProcesos.addSelectionListener(event -> {
             if (event.getFirstSelectedItem().isPresent()) {
                 ProcesoDTO proceso = event.getFirstSelectedItem().get();
@@ -261,49 +235,48 @@ public class ProcesarRecibosView extends VerticalLayout {
             }
         });
 
-        // Configurar grid de detalles
+        // Grid de detalles - SOLO DOS COLUMNAS: Cédula y Nombre
         gridDetalles.addColumn(ReciboDetalleDTO::getCi)
                 .setHeader("Cédula")
-                .setAutoWidth(true)
-                .setFlexGrow(0);
+                .setAutoWidth(true);
+
+        gridDetalles.addColumn(detalle -> {
+            String nombre = detalle.getPrimerNombre();
+            String apellido = detalle.getPrimerApellido();
+            if (nombre == null && apellido == null) return "";
+            if (nombre == null) return apellido;
+            if (apellido == null) return nombre;
+            return nombre + " " + apellido;
+        }).setHeader("Nombre").setAutoWidth(true);
 
         gridDetalles.addColumn(ReciboDetalleDTO::getNombreArchivo)
                 .setHeader("Archivo PDF")
                 .setAutoWidth(true);
 
-        // Columna para acciones en detalles
         gridDetalles.addComponentColumn(detalle -> {
             Button ver = new Button("Ver PDF", new Icon(VaadinIcon.EYE));
             ver.getElement().setAttribute("theme", "small primary");
             ver.addClickListener(e -> mostrarRecibo(detalle));
-            ver.setTooltipText("Ver recibo PDF");
             return ver;
-        }).setHeader("Acción").setAutoWidth(true).setFlexGrow(0);
+        }).setHeader("Acción").setAutoWidth(true);
 
         gridDetalles.setSizeFull();
     }
 
     private void crearLayoutTresSecciones() {
-        // SECCIÓN 1: FORMULARIO DE PROCESAMIENTO (arriba a lo ancho)
         VerticalLayout seccionFormulario = crearSeccionFormulario();
-
-        // SECCIÓN 2: PROCESOS EXISTENTES (mitad izquierda)
         VerticalLayout seccionProcesos = crearSeccionProcesos();
-
-        // SECCIÓN 3: DETALLES DEL PROCESO SELECCIONADO (mitad derecha)
         VerticalLayout seccionDetalles = crearSeccionDetalles();
 
-        // Layout horizontal para las dos grillas (secciones 2 y 3)
         HorizontalLayout seccionGrillas = new HorizontalLayout(seccionProcesos, seccionDetalles);
         seccionGrillas.setSizeFull();
         seccionGrillas.setSpacing(true);
         seccionGrillas.setPadding(false);
-        seccionGrillas.setFlexGrow(1, seccionProcesos); // 50%
-        seccionGrillas.setFlexGrow(1, seccionDetalles); // 50%
+        seccionGrillas.setFlexGrow(1, seccionProcesos);
+        seccionGrillas.setFlexGrow(1, seccionDetalles);
 
-        // Layout principal vertical
         add(seccionFormulario, seccionGrillas);
-        setFlexGrow(1, seccionGrillas); // Las grillas ocupan el espacio restante
+        setFlexGrow(1, seccionGrillas);
     }
 
     private VerticalLayout crearSeccionFormulario() {
@@ -323,15 +296,12 @@ public class ProcesarRecibosView extends VerticalLayout {
                 .set("margin-bottom", "1rem")
                 .set("color", "var(--lumo-primary-text-color)");
 
-        // Layout para combos en 2 filas
-        // Fila 1: Localidad y Tipo de Recibo
         HorizontalLayout fila1 = new HorizontalLayout(comboLocalidad, comboTipoRecibo);
         fila1.setSpacing(true);
         fila1.setWidthFull();
         fila1.setFlexGrow(1, comboLocalidad);
         fila1.setFlexGrow(1, comboTipoRecibo);
 
-        // Fila 2: Mes, Año y Upload
         HorizontalLayout fila2 = new HorizontalLayout(comboMes, comboAnio, upload);
         fila2.setSpacing(true);
         fila2.setWidthFull();
@@ -339,7 +309,6 @@ public class ProcesarRecibosView extends VerticalLayout {
         fila2.setFlexGrow(0.3, comboAnio);
         fila2.setFlexGrow(1, upload);
 
-        // Fila 3: Botón procesar
         HorizontalLayout fila3 = new HorizontalLayout(btnProcesar);
         fila3.setWidthFull();
         fila3.setJustifyContentMode(JustifyContentMode.END);
@@ -377,7 +346,6 @@ public class ProcesarRecibosView extends VerticalLayout {
 
         header.add(titulo, contador);
 
-        // Actualizar contador cuando cambien los procesos
         gridProcesos.getDataProvider().addDataProviderListener(event -> {
             long total = gridProcesos.getDataProvider().size(new Query<>());
             contador.setText(total + " procesos");
@@ -414,7 +382,6 @@ public class ProcesarRecibosView extends VerticalLayout {
                 .set("font-size", "0.875rem")
                 .set("color", "var(--lumo-secondary-text-color)");
 
-        // Botón para limpiar selección
         Button btnLimpiar = new Button("Limpiar", new Icon(VaadinIcon.CLOSE_SMALL));
         btnLimpiar.getElement().setAttribute("theme", "small tertiary");
         btnLimpiar.setVisible(false);
@@ -426,14 +393,12 @@ public class ProcesarRecibosView extends VerticalLayout {
 
         header.add(titulo, contador, btnLimpiar);
 
-        // Actualizar contador cuando cambien los detalles
         gridDetalles.getDataProvider().addDataProviderListener(event -> {
             long total = gridDetalles.getDataProvider().size(new Query<>());
             contador.setText(total + " recibos");
             btnLimpiar.setVisible(total > 0);
         });
 
-        // Cuando se selecciona un proceso, mostrar el botón limpiar
         gridProcesos.addSelectionListener(event -> {
             btnLimpiar.setVisible(event.getFirstSelectedItem().isPresent());
         });
@@ -450,122 +415,12 @@ public class ProcesarRecibosView extends VerticalLayout {
                         proceso.getMesAnio()
                 ).stream()
                 .map(ReciboDetalleDTO::new)
-                .sorted(Comparator.comparing(ReciboDetalleDTO::getApellidos)
-                        .thenComparing(ReciboDetalleDTO::getNombres))
+                .sorted(Comparator.comparing(ReciboDetalleDTO::getNombreFormateado))
                 .collect(Collectors.toList());
 
         gridDetalles.setItems(detalles);
-
-        // Resaltar visualmente que se cargaron detalles
         Notification.show("📂 Cargados " + detalles.size() + " recibos de " +
                 proceso.getNombreProceso(), 2000, Notification.Position.BOTTOM_START);
-    }
-
-
-    private void configurarGridDetalles() {
-        gridDetalles.addColumn(ReciboDetalleDTO::getCi)
-                .setHeader("CI")
-                .setAutoWidth(true);
-
-
-        gridDetalles.addColumn(ReciboDetalleDTO::getNombreArchivo)
-                .setHeader("Archivo")
-                .setAutoWidth(true);
-
-        // Columna para ver recibo
-        gridDetalles.addComponentColumn(detalle -> {
-            Button ver = new Button("Ver", new Icon(VaadinIcon.EYE));
-            ver.getElement().setAttribute("theme", "small primary");
-            ver.addClickListener(e -> mostrarRecibo(detalle));
-            ver.setTooltipText("Ver recibo PDF");
-            return ver;
-        }).setHeader("Acción").setAutoWidth(true);
-
-        gridDetalles.setWidth("100%");
-        gridDetalles.setHeight("400px");
-        gridDetalles.setVisible(false);
-    }
-
-    private void crearLayout() {
-        // Panel de formulario (izquierda - 40%)
-        VerticalLayout panelFormulario = new VerticalLayout();
-        panelFormulario.setSpacing(true);
-        panelFormulario.setPadding(true);
-        panelFormulario.getStyle()
-                .set("border", "1px solid var(--lumo-contrast-10pct)")
-                .set("border-radius", "8px")
-                .set("background", "white");
-        panelFormulario.setWidth("40%");
-
-        H3 tituloForm = new H3("Nuevo Proceso de Liquidación");
-        tituloForm.getStyle()
-                .set("margin-top", "0")
-                .set("color", "var(--lumo-primary-text-color)");
-
-        panelFormulario.add(
-                tituloForm,
-                comboLocalidad,
-                comboTipoRecibo,
-                new HorizontalLayout(comboMes, comboAnio),
-                upload,
-                btnProcesar
-        );
-
-        // Panel de procesos (centro - 35%)
-        VerticalLayout panelProcesos = new VerticalLayout();
-        panelProcesos.setSpacing(true);
-        panelProcesos.setPadding(false);
-        panelProcesos.setWidth("35%");
-
-        H3 tituloProcesos = new H3("Procesos Existentes");
-        tituloProcesos.getStyle()
-                .set("margin-top", "0")
-                .set("color", "var(--lumo-primary-text-color)");
-
-        panelProcesos.add(tituloProcesos, gridProcesos);
-
-        // Panel de detalles (derecha - 25%)
-        VerticalLayout panelDetalles = new VerticalLayout();
-        panelDetalles.setSpacing(true);
-        panelDetalles.setPadding(false);
-        panelDetalles.setWidth("25%");
-        panelDetalles.setVisible(false);
-
-        Div tituloDetallesContainer = new Div();
-        tituloDetallesContainer.getStyle()
-                .set("display", "flex")
-                .set("justify-content", "space-between")
-                .set("align-items", "center");
-
-        H3 tituloDetalles = new H3("Detalles");
-        Span contador = new Span();
-        contador.getStyle()
-                .set("font-size", "0.875rem")
-                .set("color", "var(--lumo-secondary-text-color)");
-
-        tituloDetallesContainer.add(tituloDetalles, contador);
-        panelDetalles.add(tituloDetallesContainer, gridDetalles);
-
-        // Cuando se selecciona un proceso, actualizar detalles
-        gridProcesos.addSelectionListener(event -> {
-            if (event.getFirstSelectedItem().isPresent()) {
-                ProcesoDTO proceso = event.getFirstSelectedItem().get();
-                cargarDetallesProceso(proceso);
-                contador.setText(proceso.getCantidadRecibos() + " recibos");
-                panelDetalles.setVisible(true);
-            } else {
-                panelDetalles.setVisible(false);
-            }
-        });
-
-        // Layout principal horizontal
-        HorizontalLayout layoutPrincipal = new HorizontalLayout();
-        layoutPrincipal.setSpacing(true);
-        layoutPrincipal.setPadding(false);
-        layoutPrincipal.setSizeFull();
-        layoutPrincipal.add(panelFormulario, panelProcesos, panelDetalles);
-
-        add(new H2("📋 Procesar Liquidaciones"), layoutPrincipal);
     }
 
     private void procesarArchivo() {
@@ -579,33 +434,28 @@ public class ProcesarRecibosView extends VerticalLayout {
         try {
             InputStream inputStream = buffer.getInputStream();
 
-            // IMPORTANTE: Verificar que el InputStream tenga datos
             if (inputStream.available() <= 0) {
                 Notification.show("❌ El archivo está vacío o no se pudo leer",
                         3000, Notification.Position.MIDDLE);
                 return;
             }
 
-            // Extraer datos del formulario
             Localidad localidad = comboLocalidad.getValue();
             TipoRecibo tipoRecibo = comboTipoRecibo.getValue();
             String mes = comboMes.getValue().substring(0, 2);
             String anio = comboAnio.getValue();
 
-            // Crear nombre del proceso
             String nombreProceso = String.format("%s-%s-%s%s",
                     localidad.getCodigo(),
                     tipoRecibo.getCodigo(),
                     mes, anio);
 
-            // Mostrar progreso
             Notification.show("⏳ Procesando archivo... Esto puede tomar unos momentos",
                     5000, Notification.Position.MIDDLE);
 
             btnProcesar.setEnabled(false);
             btnProcesar.setText("Procesando...");
 
-            // Procesar el archivo de forma síncrona (ya que PDFBox bloquea el hilo)
             procesadorService.procesarRecibos(
                     inputStream,
                     localidad.getCodigo(),
@@ -615,14 +465,12 @@ public class ProcesarRecibosView extends VerticalLayout {
                     "recibos_procesados/" + nombreProceso
             );
 
-            // Contar recibos generados
             long recibosGenerados = repository.countByLocalidadCodigoAndTipoAndMesAnio(
                     localidad.getCodigo(),
                     tipoRecibo.getCodigo(),
                     mes + anio
             );
 
-            // Limpiar formulario
             comboLocalidad.clear();
             comboTipoRecibo.clear();
             comboMes.clear();
@@ -630,18 +478,15 @@ public class ProcesarRecibosView extends VerticalLayout {
             resetearUpload();
             archivoSubido = null;
 
-            // Resetear el upload
             upload.getElement().executeJs("""
             this.files = [];
             this.dispatchEvent(new Event('change', {bubbles: true}));
         """);
 
-            // Actualizar UI
             Notification.show(String.format(
                     "✅ Procesado exitosamente: %d recibos generados",
                     recibosGenerados
             ), 5000, Notification.Position.MIDDLE);
-
 
             cargarProcesos();
 
@@ -672,21 +517,18 @@ public class ProcesarRecibosView extends VerticalLayout {
 
                     List<ReciboProcesado> recibos = entry.getValue();
 
-                    // Buscar nombre de localidad
                     String localidadNombre = localidadService.listarTodas().stream()
                             .filter(l -> l.getCodigo().equals(localidadCodigo))
                             .map(Localidad::getNombre)
                             .findFirst()
                             .orElse(localidadCodigo);
 
-                    // Buscar nombre del tipo de recibo
                     String tipoNombre = tipoReciboService.listarTodos().stream()
                             .filter(t -> t.getCodigo().equals(tipo))
                             .map(TipoRecibo::getNombre)
                             .findFirst()
                             .orElse(tipo);
 
-                    // Fecha del último procesamiento
                     LocalDateTime ultimaFecha = recibos.stream()
                             .map(ReciboProcesado::getProcesadoEn)
                             .filter(d -> d != null)
@@ -704,7 +546,6 @@ public class ProcesarRecibosView extends VerticalLayout {
                     );
                 })
                 .sorted((a, b) -> {
-                    // Ordenar por fecha descendente
                     if (a.getFechaProcesamiento() == null && b.getFechaProcesamiento() == null) return 0;
                     if (a.getFechaProcesamiento() == null) return 1;
                     if (b.getFechaProcesamiento() == null) return -1;
@@ -714,20 +555,6 @@ public class ProcesarRecibosView extends VerticalLayout {
 
         gridProcesos.setItems(procesos);
     }
-
-    /*
-    private void cargarDetallesProceso(ProcesoDTO proceso) {
-        List<ReciboDetalleDTO> detalles = repository
-                .findByLocalidadCodigoAndTipoAndMesAnio(
-                        proceso.getLocalidadCodigo(),
-                        proceso.getTipo(),
-                        proceso.getMesAnio()
-                ).stream()
-                .map(ReciboDetalleDTO::new)
-                .collect(Collectors.toList());
-
-        gridDetalles.setItems(detalles);
-    }*/
 
     private void eliminarProceso(ProcesoDTO proceso) {
         Dialog confirmDialog = new Dialog();
@@ -748,7 +575,6 @@ public class ProcesarRecibosView extends VerticalLayout {
         Button confirmar = new Button("Eliminar", new Icon(VaadinIcon.TRASH));
         confirmar.getElement().setAttribute("theme", "error primary");
         confirmar.addClickListener(e -> {
-            // Obtener todos los recibos del proceso
             List<ReciboProcesado> recibos = repository
                     .findByLocalidadCodigoAndTipoAndMesAnio(
                             proceso.getLocalidadCodigo(),
@@ -756,7 +582,6 @@ public class ProcesarRecibosView extends VerticalLayout {
                             proceso.getMesAnio()
                     );
 
-            // Eliminar archivos físicos
             recibos.forEach(recibo -> {
                 if (recibo.getRutaArchivo() != null) {
                     try {
@@ -765,15 +590,13 @@ public class ProcesarRecibosView extends VerticalLayout {
                             archivo.delete();
                         }
                     } catch (Exception ex) {
-                        // Continuar aunque falle algún archivo
+                        // Continuar
                     }
                 }
             });
 
-            // Eliminar de la base de datos
             repository.deleteAll(recibos);
 
-            // Intentar eliminar el directorio si está vacío
             try {
                 String dirPath = "recibos_procesados/" + proceso.getLocalidadCodigo() +
                         "-" + proceso.getTipo() + "-" + proceso.getMesAnio();
@@ -782,7 +605,7 @@ public class ProcesarRecibosView extends VerticalLayout {
                     directorio.delete();
                 }
             } catch (Exception ex) {
-                // Ignorar error al eliminar directorio
+                // Ignorar
             }
 
             confirmDialog.close();
@@ -790,7 +613,7 @@ public class ProcesarRecibosView extends VerticalLayout {
                     3000, Notification.Position.MIDDLE);
 
             cargarProcesos();
-            gridDetalles.setVisible(false);
+            gridDetalles.setItems(List.of());
         });
 
         Button cancelar = new Button("Cancelar");
@@ -807,23 +630,20 @@ public class ProcesarRecibosView extends VerticalLayout {
         Dialog dialog = new Dialog();
         dialog.setModal(true);
         dialog.setWidth("600px");
-        dialog.setHeaderTitle("Recibo: " + detalle.getNombreCompleto());
+        dialog.setHeaderTitle("Recibo: " + detalle.getNombreFormateado());
 
         VerticalLayout contenido = new VerticalLayout();
         contenido.setSpacing(true);
         contenido.setPadding(true);
 
         try {
-            // Cargar archivo PDF
             byte[] data = Files.readAllBytes(Paths.get(detalle.getRutaArchivo()));
 
-            // Crear recurso stream
             StreamResource resource = new StreamResource(
                     detalle.getNombreArchivo(),
                     () -> new ByteArrayInputStream(data)
             );
 
-            // Opción A: Botón para descargar/abrir
             Button descargarBtn = new Button("Abrir recibo PDF", new Icon(VaadinIcon.DOWNLOAD));
             descargarBtn.getElement().setAttribute("theme", "primary");
             Anchor anchor = new Anchor(resource, "");
@@ -831,15 +651,13 @@ public class ProcesarRecibosView extends VerticalLayout {
             anchor.getElement().setAttribute("target", "_blank");
             anchor.add(descargarBtn);
 
-            // Opción B: Mostrar información del recibo
             Div info = new Div();
             info.setText("Recibo disponible para descarga:");
             info.getStyle().set("margin-bottom", "1rem");
 
-            // Lista de detalles
             UnorderedList lista = new UnorderedList();
-            lista.add(new ListItem("CI: " + detalle.getCi()));
-            lista.add(new ListItem("Nombre: " + detalle.getNombreCompleto()));
+            lista.add(new ListItem("Cédula: " + detalle.getCi()));
+            lista.add(new ListItem("Nombre: " + detalle.getNombreFormateado()));
             lista.add(new ListItem("Archivo: " + detalle.getNombreArchivo()));
 
             contenido.add(info, lista, anchor);
@@ -880,6 +698,8 @@ public class ProcesarRecibosView extends VerticalLayout {
             this.fechaProcesamiento = fechaProcesamiento;
         }
 
+
+
         public String getLocalidadCodigo() { return localidadCodigo; }
         public String getTipo() { return tipoCodigo; }
         public String getMesAnio() { return mesAnio; }
@@ -890,6 +710,7 @@ public class ProcesarRecibosView extends VerticalLayout {
             return String.format("%s - %s - %s",
                     localidadNombre, tipoNombre, getMesAnioFormateado());
         }
+
 
         public String getMesAnioFormateado() {
             if (mesAnio != null && mesAnio.length() == 6) {
@@ -903,27 +724,35 @@ public class ProcesarRecibosView extends VerticalLayout {
 
     public static class ReciboDetalleDTO {
         private final String ci;
-        private final String nombres;
-        private final String apellidos;
+        private final String primerNombre;
+        private final String primerApellido;
         private final String nombreArchivo;
         private final String rutaArchivo;
 
         public ReciboDetalleDTO(ReciboProcesado recibo) {
             this.ci = recibo.getCi();
-            this.nombres = recibo.getNombres();
-            this.apellidos = recibo.getApellidos();
+            this.primerNombre = recibo.getPrimerNombre();
+            this.primerApellido = recibo.getPrimerApellido();
             this.nombreArchivo = recibo.getNombreArchivo();
             this.rutaArchivo = recibo.getRutaArchivo();
         }
 
-        public String getCi() { return ci; }
-        public String getNombres() { return nombres != null ? nombres : ""; }
-        public String getApellidos() { return apellidos != null ? apellidos : ""; }
+        public String getCi() { return ci != null ? ci : ""; }
+        public String getPrimerNombre() { return primerNombre != null ? primerNombre : ""; }
+        public String getPrimerApellido() { return primerApellido != null ? primerApellido : ""; }
         public String getNombreArchivo() { return nombreArchivo; }
         public String getRutaArchivo() { return rutaArchivo; }
 
-        public String getNombreCompleto() {
-            return (getNombres() + " " + getApellidos()).trim();
+        public String getNombreFormateado() {
+            String pn = getPrimerNombre();
+            String pa = getPrimerApellido();
+            if (pn.isEmpty() && pa.isEmpty()) return "";
+            if (pn.isEmpty()) return pa;
+            if (pa.isEmpty()) return pn;
+            return pn + " " + pa;
         }
+
+
+
     }
 }

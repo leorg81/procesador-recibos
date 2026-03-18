@@ -23,8 +23,10 @@ public class ReciboProcesado extends AbstractEntity {
     private String anio; // NUEVO: almacenar año separado
 
     private String fechaPago; // NUEVO: fecha de pago
-    private String nombres; // NUEVO: nombres del funcionario
-    private String apellidos; // NUEVO: apellidos del funcionario
+    private String nombres;
+    private String apellidos;
+    private String primerNombre;
+    private String primerApellido;
     private Double confianza; // NUEVO: nivel de confianza de detección
 
     @Column(nullable = false)
@@ -107,20 +109,20 @@ public class ReciboProcesado extends AbstractEntity {
         this.fechaPago = fechaPago;
     }
 
-    public String getNombres() { // NUEVO
-        return nombres;
+    public String getPrimerNombre() {
+        return primerNombre;
     }
 
-    public void setNombres(String nombres) { // NUEVO
-        this.nombres = nombres;
+    public void setPrimerNombre(String primerNombre) {
+        this.primerNombre = primerNombre;
     }
 
-    public String getApellidos() { // NUEVO
-        return apellidos;
+    public String getPrimerApellido() {
+        return primerApellido;
     }
 
-    public void setApellidos(String apellidos) { // NUEVO
-        this.apellidos = apellidos;
+    public void setPrimerApellido(String primerApellido) {
+        this.primerApellido = primerApellido;
     }
 
     public Double getConfianza() { // NUEVO
@@ -161,6 +163,22 @@ public class ReciboProcesado extends AbstractEntity {
 
     public void setLocalidadCodigo(String localidadCodigo) {
         this.localidadCodigo = localidadCodigo;
+    }
+
+    public String getNombres() {
+        return nombres;
+    }
+
+    public void setNombres(String nombres) {
+        this.nombres = nombres;
+    }
+
+    public String getApellidos() {
+        return apellidos;
+    }
+
+    public void setApellidos(String apellidos) {
+        this.apellidos = apellidos;
     }
 
     public TipoRecibo getTipoRecibo() { return tipoRecibo; }

@@ -97,6 +97,21 @@ public class ProcesadorPdfService {
         return "desconocido";
     }
 
+
+
+    /**
+     * Devuelve la primera palabra de una cadena (separador: espacio en blanco).
+     * Si la cadena es nula o vacía, retorna una cadena vacía.
+     */
+    private String obtenerPrimerToken(String texto) {
+        if (texto == null || texto.trim().isEmpty()) {
+            return "";
+        }
+        String[] partes = texto.trim().split("\\s+");
+        return partes[0];
+    }
+
+
     private void guardarPaginaIndividual(PDDocument documento, int numeroPagina, String rutaArchivo) throws Exception {
         try (PDDocument paginaIndividual = new PDDocument()) {
             paginaIndividual.addPage(documento.getPage(numeroPagina));
@@ -143,8 +158,8 @@ public class ProcesadorPdfService {
         }
 
         // 2. Puntos por nombres extraídos (30 puntos máximo)
-        if (recibo.getNombres() != null && !recibo.getNombres().isEmpty() &&
-                recibo.getApellidos() != null && !recibo.getApellidos().isEmpty()) {
+        if (recibo.getPrimerNombre() != null && !recibo.getPrimerNombre().isEmpty() &&
+                recibo.getPrimerApellido() != null && !recibo.getPrimerApellido().isEmpty()) {
             confianza += 0.3; // 30%
         }
 
@@ -176,22 +191,30 @@ public class ProcesadorPdfService {
 
         // Si después de todo sigue en 0, asignar un mínimo
         if (recibo.getConfianza() == 0.0 &&
-                (recibo.getCi() != null || recibo.getNombres() != null)) {
+                (recibo.getCi() != null || recibo.getPrimerNombre() != null)) {
             recibo.setConfianza(0.1); // 10% mínimo si tiene algún dato
         }
     }
 
     private void extraerNombreFuncionario(String texto, ReciboProcesado recibo) {
-        // Patrón para nombres y apellidos (ajusta según tu formato)
         Pattern patronNombre = Pattern.compile(
-                "Nombres:\\s*([^\\n]+)\\s*Apellidos:\\s*([^\\n]+)",
+                "Nombres:\\s*(.+?)\\s+Apellidos:\\s*(.+)",
                 Pattern.CASE_INSENSITIVE
         );
 
         Matcher matcher = patronNombre.matcher(texto);
         if (matcher.find()) {
-            recibo.setNombres(matcher.group(1).trim());
-            recibo.setApellidos(matcher.group(2).trim());
+            String nombresCompleto = matcher.group(1).trim();
+            String apellidosCompleto = matcher.group(2).trim();
+
+            // Guardar los valores completos
+            recibo.setNombres(nombresCompleto);
+            recibo.setApellidos(apellidosCompleto);
+
+            // Opcional: si aún quieres mantener los campos de primer nombre/apellido
+            // los puedes calcular también
+            recibo.setPrimerNombre(obtenerPrimerToken(nombresCompleto));
+            recibo.setPrimerApellido(obtenerPrimerToken(apellidosCompleto));
         }
     }
 }

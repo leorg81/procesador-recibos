@@ -12,10 +12,11 @@ import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.example.services.LocalidadService;
-import org.vaadin.example.services.TipoReciboService;
 import org.vaadin.example.services.UserService;
 import org.vaadin.example.views.MainLayout;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
+import org.vaadin.example.services.TipoReciboService;
+
 
 @PageTitle("Configuraciones")
 @Route(value = "configuraciones", layout = MainLayout.class)
