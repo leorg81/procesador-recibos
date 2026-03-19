@@ -1,4 +1,162 @@
-# tournapp
+🚀 Sistema de Procesamiento Inteligente de Recibos
+💼 Solución integral para automatización documental
+
+Plataforma desarrollada para la digitalización, procesamiento automático y distribución de recibos de funcionarios, optimizando procesos administrativos y reduciendo la carga operativa mediante el uso de OCR, APIs e integración con bots.
+
+🧠 Problema que resuelve
+
+En muchas organizaciones:
+
+La distribución de recibos es manual y lenta
+
+Se generan errores humanos en clasificación
+
+Los funcionarios dependen de terceros para acceder a su información
+
+No existen canales modernos de consulta (bots, autoservicio)
+
+👉 Este sistema elimina estos problemas mediante automatización y autoservicio.
+
+⚙️ Qué hace la solución
+
+✔ Procesa paquetes completos de recibos automáticamente
+✔ Divide documentos utilizando OCR
+✔ Identifica datos clave (nombre, documento, fechas)
+✔ Genera archivos individuales organizados
+✔ Distribuye recibos por email de forma automática
+✔ Permite consulta mediante bots (Telegram / WhatsApp)
+✔ Expone API REST para integraciones externas
+
+🧩 Funcionalidades clave
+📥 Procesamiento Inteligente
+
+Separación automática de recibos
+
+Normalización de archivos
+
+Clasificación por:
+
+funcionario
+
+mes / año
+
+localidad
+
+tipo de recibo
+
+🤖 Integración con Bots
+
+Consulta de recibos sin ingresar al sistema
+
+Vinculación segura mediante código por email
+
+Experiencia de autoservicio para el usuario final
+
+📬 Automatización de Correo
+
+Recepción de solicitudes
+
+Validación de formato
+
+Respuesta automática con instrucciones o documentos
+
+👥 Gestión de Usuarios y Roles
+
+Administración completa (Admin)
+
+Operación de liquidaciones
+
+Registro de funcionarios
+
+Control de accesos y permisos
+
+📊 Dashboard Ejecutivo
+
+Métricas de procesamiento
+
+Estadísticas operativas
+
+Sin exposición de datos sensibles
+
+🏗️ Arquitectura
+
+Backend: Java + Spring Boot
+
+Frontend: Vaadin
+
+API REST para integraciones
+
+OCR para procesamiento documental
+
+Servicios automatizados de correo
+
+Integración con bots (Telegram / WhatsApp)
+
+🔐 Seguridad
+
+Autenticación y control de roles
+
+Validación por código para integraciones
+
+Recuperación de contraseña vía email
+
+Acceso restringido a información sensible
+
+📈 Resultados obtenidos
+
+✔ Reducción significativa del trabajo manual
+✔ Disminución de errores en la distribución
+✔ Acceso autónomo de los funcionarios
+✔ Mejora en tiempos de entrega de recibos
+✔ Escalabilidad para grandes volúmenes
+
+🎯 Valor agregado
+
+Este sistema no es solo una herramienta técnica, es una solución pensada para:
+
+Áreas de recursos humanos
+
+Departamentos de liquidaciones
+
+Organismos públicos o empresas con gran volumen de personal
+
+👉 Permite modernizar procesos sin cambiar la estructura organizacional.
+
+👨‍💻 Sobre el desarrollo
+
+Sistema diseñado e implementado de forma integral, incluyendo:
+
+Modelado de procesos reales
+
+Automatización de flujos administrativos
+
+Integración con servicios externos
+
+Desarrollo full-stack
+
+📬 Contacto
+
+Si te interesa implementar una solución similar o adaptar este sistema a tu organización:
+
+📧 [tu email]
+💼 [LinkedIn o portfolio]
+
+🧠 Cómo usar esto estratégicamente
+
+Te doy un tip clave (esto vale oro):
+
+👉 Tenés que tener 2 versiones de cada proyecto:
+
+README técnico (interno)
+
+README comercial (este que hicimos)
+
+Y además:
+
+👉 En tu CV no pongas “desarrollé sistema”
+Poné:
+
+“Diseñé e implementé un sistema de automatización documental con OCR y bots, reduciendo procesos manuales y mejorando la eficiencia operativa”# tournapp
 
 This project can be used as a starting point to create your own Vaadin application with Spring Boot.
 It contains all the necessary configuration and some placeholder files to get you started.
