@@ -1,4 +1,5 @@
 🚀 Sistema de Procesamiento Inteligente de Recibos
+
 💼 Solución integral para automatización documental
 
 Plataforma desarrollada para la digitalización, procesamiento automático y distribución de recibos de funcionarios, optimizando procesos administrativos y reduciendo la carga operativa mediante el uso de OCR, APIs e integración con bots.
